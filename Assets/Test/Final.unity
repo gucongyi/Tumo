@@ -112,6 +112,41 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &135320911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 135320912}
+  m_Layer: 5
+  m_Name: RootBrush
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &135320912
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 135320911}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1227451708}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &275178854
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,13 +428,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14b8e7316d450db42b2d784f4271bda6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tranParent: {fileID: 1227451708}
+  tranParent: {fileID: 135320912}
   brush: {fileID: 2177442111043180296, guid: 13f4714a427bccb44a06a7dcd71f299d, type: 3}
   textShow: {fileID: 1212535726}
   canvasRect: {fileID: 461172067}
   brushCamera: {fileID: 2081722601}
   renderTexture: {fileID: 8400000, guid: aac8affd220ecf441a4067b08f020417, type: 2}
-  radius: 2
+  radius: 3
 --- !u!1 &646495324
 GameObject:
   m_ObjectHideFlags: 0
@@ -710,6 +745,7 @@ RectTransform:
   m_LocalScale: {x: 0.0037202, y: 0.0037202, z: 0.0037202}
   m_Children:
   - {fileID: 648282286}
+  - {fileID: 135320912}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

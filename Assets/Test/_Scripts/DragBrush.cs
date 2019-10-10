@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler
+public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler,IEndDragHandler
 {
     public Transform tranParent;
     public GameObject brush;
@@ -13,33 +13,106 @@ public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler
     public Camera brushCamera;
     public RenderTexture renderTexture;
     public float radius = 0.5f;//半径
-    GameObject brushClone;
+    const float blushWidth= 50;
 
+    bool twoPoints = false;
+    Vector2 lastPos;//上一个点
+    Vector2 beginPos;//开始点
+    int countBrush = 0;
+
+    //限制创建出来的数量
+    List<Vector2> listHave = new List<Vector2>();
+    private void Start()
+    {
+        listHave.Clear();
+        listHave.Add(Vector2.zero);
+    }
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        twoPoints = false;
+        StartCoroutine(CaptureScreenshot());
+    }
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (brushClone == null)
-        {
-            brushClone = Instantiate(brush);
-        }
-        brushClone.transform.parent = tranParent;
-        brushClone.transform.localScale = Vector3.one* radius;
-        SetPos(eventData);
+        
+        //SetPos(eventData);
+        beginPos = GetPos(eventData);
+        InstanceBrush(beginPos);
     }
 
-    private void SetPos(PointerEventData eventData)
+    public void InstanceBrush(Vector2 localPoint)
+    {
+        bool isCreate = true;
+        foreach (var item in listHave)
+        {
+            if (Vector2.Distance(item, localPoint) < radius* blushWidth/4)
+            {
+                //附近已经有了，不创建
+                isCreate=false;
+                break;
+            }
+        }
+        if (!isCreate)
+        {
+            return;
+        }
+        GameObject  brushClone = Instantiate(brush);
+        brushClone.transform.parent = tranParent;
+        brushClone.transform.localScale = Vector3.one * radius;
+        brushClone.transform.localPosition = localPoint;
+        listHave.Add(localPoint);
+        countBrush++;
+        Debug.LogError($"countBrush:{countBrush}");
+    }
+
+    private Vector2 GetPos(PointerEventData eventData)
     {
         Vector2 mouseUguiPos;
         bool isRect = RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, eventData.position, brushCamera, out mouseUguiPos);
-        brushClone.transform.localPosition = mouseUguiPos;
+        return mouseUguiPos;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        SetPos(eventData);
+        //SetPos(eventData);
         //throw new System.NotImplementedException();
+        Vector2 mouseUguiPos = GetPos(eventData);
+        if (twoPoints && Vector2.Distance(mouseUguiPos, lastPos) > 2*radius)//如果两次记录的鼠标坐标距离大于一定的距离，开始记录鼠标的点
+        {
+            Vector2 pos = mouseUguiPos;
+            float dis = Vector2.Distance(lastPos, pos);
+            int segments = (int)(dis / radius);//计算出平滑的段数
+            segments = segments < 1 ? 1 : segments;
+            Vector2[] points = Beizier(beginPos, lastPos, pos, segments);//进行贝塞尔平滑
+            for (int i = 0; i < points.Length; i++)
+            {
+                InstanceBrush(points[i]);
+            }
+            lastPos = pos;
+            beginPos = points[points.Length - 2];
+        }
+        else
+        {
+            twoPoints = true;
+            lastPos = mouseUguiPos;
+        }
     }
 
-
+    public Vector2[] Beizier(Vector2 start, Vector2 mid, Vector2 end, int segments)
+    {
+        float d = 1f / segments;
+        Vector2[] points = new Vector2[segments - 1];
+        for (int i = 0; i < points.Length; i++)
+        {
+            float t = d * (i + 1);
+            points[i] = (1 - t) * (1 - t) * mid + 2 * t * (1 - t) * start + t * t * end;
+        }
+        List<Vector2> rps = new List<Vector2>();
+        rps.Add(mid);
+        rps.AddRange(points);
+        rps.Add(end);
+        return rps.ToArray();
+    }
     IEnumerator CaptureScreenshot()
     {
         //只在每一帧渲染完成后才读取屏幕信息
@@ -80,20 +153,5 @@ public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler
         Debug.LogError("Input.mousePosition.x:" + Input.mousePosition.x + "Input.mousePosition.y:" + Input.mousePosition.y + "color1.a:" + color1.a);
 
     }
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetMouseButtonUp(0))
-        {
-            StartCoroutine(CaptureScreenshot());
-        }
-    }
+    
 }
