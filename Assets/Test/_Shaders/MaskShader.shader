@@ -6,6 +6,7 @@ Shader "Custom/MaskShader" {
 		//_MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_MaskTex("Mask Texture",2D) = "white"{}
 		_Mask("Mask",2D) = "white"{}
+		//_MaskTex("Mask Texture", 2D) = "black" {}
 
 	}
 	SubShader {
@@ -27,6 +28,7 @@ Shader "Custom/MaskShader" {
 			//sampler2D _MainTex;
 			sampler2D _MaskTex;
 			sampler2D _Mask;
+			float4 _Color;
 
 			v2f vert(appdata_base v)
 			{
@@ -41,7 +43,12 @@ Shader "Custom/MaskShader" {
 				//float4 mainColor = tex2D(_MainTex,i.uv);
 				float4 maskTexColor = tex2D(_MaskTex,i.uv);
 				float4 maskColor = tex2D(_Mask,i.uv);
-				maskTexColor.a = 1 - maskColor.a;
+				//if (maskColor.a!=0)
+				//{
+				//	maskTexColor.a = 1 - maskColor.a;
+				//}
+				maskColor = lerp(1, maskColor.r , _Color.r);
+				maskTexColor.a = lerp(maskTexColor.a, 0, maskColor.r);
 				return maskTexColor;
 			}
 			ENDCG
