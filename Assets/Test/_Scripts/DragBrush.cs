@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler,IEndDragHandler
+public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler,IPointerUpHandler
 {
     public Transform tranParent;
     public GameObject brush;
@@ -27,11 +27,13 @@ public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler,IEndDr
         listHave.Clear();
         listHave.Add(Vector2.zero);
     }
-    public void OnEndDrag(PointerEventData eventData)
+
+    public void OnPointerUp(PointerEventData eventData)
     {
         twoPoints = false;
         StartCoroutine(CaptureScreenshot());
     }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         
@@ -153,5 +155,6 @@ public class DragBrush : MonoBehaviour, IPointerDownHandler, IDragHandler,IEndDr
         Debug.LogError("Input.mousePosition.x:" + Input.mousePosition.x + "Input.mousePosition.y:" + Input.mousePosition.y + "color1.a:" + color1.a);
 
     }
+
     
 }
